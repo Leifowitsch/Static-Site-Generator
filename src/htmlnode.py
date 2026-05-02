@@ -17,4 +17,4 @@ class HTMLNode():
         return string
     
 class LeafNode(HTMLNode):
-    
+    pass
