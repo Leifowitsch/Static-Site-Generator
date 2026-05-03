@@ -52,7 +52,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             # oder split ist der letzte punkt wo der Text gesplitet wurde. also wo die schriftart aufgehört hat 
             if index == ende and split != index:
                 new_nodes.append(TextNode(node.value[split:index], text_type=TextType.plain)) 
-
+# du bist seeehr süß
 
 
 
