@@ -21,8 +21,3 @@ class TextNode():
     def __repr__(self) -> str:
         return f"TextNode({self.value}, {self.text_type.value}, {self.url})"
     
-def main():
-    node = TextNode("bla bal bal", TextType.code)
-    print(node.text_type.value)
-    
-main()
