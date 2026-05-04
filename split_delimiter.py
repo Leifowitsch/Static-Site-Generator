@@ -77,40 +77,35 @@ def extract_markdown_links(text):
 def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
-        bild_nummer = 0
-        split_punkt = 0
-        anfang = True
+        alt_text_and_link = extract_markdown_images(node.value)
+        text_to_split = node.value
         if node.text_type == TextType.images:
             new_nodes.append(node)
             continue
-        #if "!"  not in node.value or "(" not in node.value or "[" not in node.value:
-         #   raise ValueError("Ungültiger Text für ein Bild oder ungültiges Format - Richtiges Format ist bspw.: This is text with a image ![image](https://www.boot.dev)")
-        alt_text_and_link = extract_markdown_images(node.value)
-        for index in range(len(node.value)):
-            if node.value[index] == "!" or node.value[index] == ")":
-                if anfang is True:
-                    new_nodes.append(TextNode(value=node.value[split_punkt:index], text_type=TextType.plain))
-                    anfang = False
-                    split_punkt = index +1
+        for image_num in range(len(extract_markdown_images(node.value))):
+            text_splitted = text_to_split.split(f"![{alt_text_and_link[image_num][0]}]({alt_text_and_link[image_num][1]})",1)
+            new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
+            text_to_split = text_splitted[1]
+            new_nodes.append(TextNode(value=alt_text_and_link[image_num][0], url=alt_text_and_link[image_num][1], text_type=TextType.images))
 
-                elif anfang is not True:
-                    new_nodes.append(TextNode(value=alt_text_and_link[bild_nummer][0], url=alt_text_and_link[bild_nummer][1], text_type=TextType.images))
-                    anfang = True 
-                    split_punkt = index +1
-                    bild_nummer += 1
+    return new_nodes
+    
+def split_nodes_links(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        alt_text_and_link = extract_markdown_links(node.value)
+        text_to_split = node.value
+        if node.text_type == TextType.images:
+            new_nodes.append(node)
+            continue
+        for link_num in range(len(extract_markdown_links(node.value))):
+            text_splitted = text_to_split.split(f"[{alt_text_and_link[link_num][0]}]({alt_text_and_link[link_num][1]})",1)
+            new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
+            text_to_split = text_splitted[1]
+            new_nodes.append(TextNode(value=alt_text_and_link[link_num][0], url=alt_text_and_link[link_num][1], text_type=TextType.links))
     return new_nodes
 
-def main():
-    node = TextNode("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)", TextType.plain)
-    new_nodes = split_nodes_image([node])
-    for node in new_nodes:
-        print(node)
-    text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)"
-    test = text.split("![alt_text_and_link[0][0]](alt_text_and_link[0][1])", 1)
-    print(test)
-
-
-main()
+    
 
                 
 

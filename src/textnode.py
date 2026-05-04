@@ -5,8 +5,8 @@ class TextType(Enum):
     bold = "**Bold text**"
     italic = "_Italic text_"
     code = "`Code text`"
-    links = "[anchor text](url)"
-    images = " ![alt text](url)"
+    links = "[anchor text](url) link"
+    images = " ![alt text](url) image"
 
 class TextNode():
     
