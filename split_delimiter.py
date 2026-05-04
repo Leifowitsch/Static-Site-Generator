@@ -78,21 +78,26 @@ def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
         bild_nummer = 0
+        alt_text_and_link = extract_markdown_images(node.value)
+        text_to_split = node.value
         if node.text_type == TextType.images:
             new_nodes.append(node)
             continue
-        for images in range(len(extract_markdown_images(node.value))):
-            new_nodes.append(TextNode())
+        for image_num in range(len(extract_markdown_images(node.value))):
+            text_splitted = text_to_split.split(f"![{alt_text_and_link[image_num][0]}]({alt_text_and_link[image_num][1]})",1)
+            new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
+            text_to_split = text_splitted[1]
+            new_nodes.append(TextNode(value=alt_text_and_link[image_num][0], url=alt_text_and_link[image_num][1], text_type=TextType.images))
 
+    print(new_nodes)
+    
         
 def main():
-    node = TextNode("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)", TextType.plain)
-    new_nodes = split_nodes_image([node])
-    text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)"
-    test = text.split("![alt_text_and_link[0][0]](alt_text_and_link[0][1])", 1)
-    print(len(extract_markdown_images(node.value)))
-    for images in range(2):
-        print("image")
+    node = TextNode("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png) bamboozled there is another ![third image](https://i.imgurr.com/3elNhQu.png) ", TextType.plain)
+    split_nodes_image([node])
+    #print(node.value.split(f"![second image](https://i.imgur.com/3elNhQu.png)",1)[1])
+
+        
 
 
 main()
