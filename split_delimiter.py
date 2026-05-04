@@ -1,4 +1,4 @@
-from enum import Enum
+import re
 from src.textnode import TextNode, TextType
 delimiters = {
     "bold" : "**",
@@ -64,15 +64,57 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return new_nodes
 
 
+
+def extract_markdown_images(text):
+    matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
+
+def extract_markdown_links(text):
+    matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        bild_nummer = 0
+        split_punkt = 0
+        anfang = True
+        if node.text_type == TextType.images:
+            new_nodes.append(node)
+            continue
+        #if "!"  not in node.value or "(" not in node.value or "[" not in node.value:
+         #   raise ValueError("Ungültiger Text für ein Bild oder ungültiges Format - Richtiges Format ist bspw.: This is text with a image ![image](https://www.boot.dev)")
+        alt_text_and_link = extract_markdown_images(node.value)
+        for index in range(len(node.value)):
+            if node.value[index] == "!" or node.value[index] == ")":
+                if anfang is True:
+                    new_nodes.append(TextNode(value=node.value[split_punkt:index], text_type=TextType.plain))
+                    anfang = False
+                    split_punkt = index +1
+
+                elif anfang is not True:
+                    new_nodes.append(TextNode(value=alt_text_and_link[bild_nummer][0], url=alt_text_and_link[bild_nummer][1], text_type=TextType.images))
+                    anfang = True 
+                    split_punkt = index +1
+                    bild_nummer += 1
+    return new_nodes
+
 def main():
-    node = TextNode("This is _text_ with a **bold**", TextType.plain)
-    node2 = TextNode("Hallöle das wort soll **dicke**sein :)", TextType.plain)
-    new_nodes = split_nodes_delimiter([node,node2], "**", TextType.bold)
+    node = TextNode("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)", TextType.plain)
+    new_nodes = split_nodes_image([node])
     for node in new_nodes:
-        print(f'Der Inhalt dieser node ist: "{node.value}" und es ist vom Typ: "{node.text_type}"')
-        print("------------------------------")
+        print(node)
+    text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)"
+    test = text.split("![alt_text_and_link[0][0]](alt_text_and_link[0][1])", 1)
+    print(test)
+
 
 main()
+eowiahgadsäpoigja
+                
+
+
 
 
 
