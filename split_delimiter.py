@@ -1,18 +1,13 @@
 import re
 from src.textnode import TextNode, TextType
 delimiters = {
-    "bold" : "**",
-    "italic" : "_",
-    "code" : "`"
+    "**" : "bold",
+    "_" : "italic",
+    "`" : "code"
     }
      
 
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    text_art = text_type
-    if delimiter not in delimiters.values():
-        raise ValueError("Delimiter ist nicht Valide")
-    if text_type == TextType.plain:
-        return old_nodes
+def split_nodes_delimiter(old_nodes):
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.plain:
@@ -23,12 +18,14 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         ende = len(node.value) -1
         for index in range(len(node.value)):
 
-            if index !=0 and node.value[index]+node.value[index-1] == delimiter:
+            if index !=0 and node.value[index]+node.value[index-1] in delimiters.keys():
                 continue
 
 
             # Das hier ist für alle delimiter die aus einem Zeichen bestehen
-            if node.value[index] == delimiter:
+            if node.value[index] in delimiters.keys():
+                delimiter_type = delimiters[node.value[index]]
+                text_art = TextType[delimiter_type]
                 if anfang is True:
                     new_nodes.append(TextNode(node.value[split_punkt:index], text_type=TextType.plain))
                     split_punkt = index + 1
@@ -47,7 +44,9 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 break
 
             # Das hier ist für Bold, da der delimitor für bold aus 2 zeichen besteht!, bzw für alle Delimiter aus 2 Zeichen
-            elif node.value[index]+node.value[index+1] == delimiter:
+            elif node.value[index]+node.value[index+1] in delimiters.keys():
+                delimiter_type = delimiters[node.value[index]+node.value[index+1]]
+                text_art = TextType[delimiter_type]
                 if anfang is True:
                     new_nodes.append(TextNode(node.value[split_punkt:index], text_type=TextType.plain))
                     split_punkt = index +2
@@ -102,7 +101,7 @@ def split_nodes_links(old_nodes):
             new_nodes.append(node)
             continue
         text_to_split = node.value
-        if node.text_type == TextType.images:
+        if node.text_type == TextType.links:
             new_nodes.append(node)
             continue
         for link_num in range(len(extract_markdown_links(node.value))):
@@ -118,8 +117,12 @@ def text_to_textnodes(text):
     new_nodes = []
     adding_nodes= []
     node = TextNode(value=text, text_type=TextType.plain)
+    #print(split_nodes_delimiter([node]))
+    new_nodes.extend(split_nodes_image([node]))
+    new_nodes.extend(split_nodes_links([node]))
+    print(new_nodes)
     
-text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+text_to_textnodes("This is a ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
 
                 
 
