@@ -78,13 +78,17 @@ def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
         alt_text_and_link = extract_markdown_images(node.value)
+        if alt_text_and_link is None or alt_text_and_link == []:
+            new_nodes.append(node)
+            continue
         text_to_split = node.value
         if node.text_type == TextType.images:
             new_nodes.append(node)
             continue
         for image_num in range(len(extract_markdown_images(node.value))):
             text_splitted = text_to_split.split(f"![{alt_text_and_link[image_num][0]}]({alt_text_and_link[image_num][1]})",1)
-            new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
+            if text_splitted[0] != "":
+                new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
             text_to_split = text_splitted[1]
             new_nodes.append(TextNode(value=alt_text_and_link[image_num][0], url=alt_text_and_link[image_num][1], text_type=TextType.images))
 
@@ -94,18 +98,28 @@ def split_nodes_links(old_nodes):
     new_nodes = []
     for node in old_nodes:
         alt_text_and_link = extract_markdown_links(node.value)
+        if alt_text_and_link is None or alt_text_and_link == []:
+            new_nodes.append(node)
+            continue
         text_to_split = node.value
         if node.text_type == TextType.images:
             new_nodes.append(node)
             continue
         for link_num in range(len(extract_markdown_links(node.value))):
             text_splitted = text_to_split.split(f"[{alt_text_and_link[link_num][0]}]({alt_text_and_link[link_num][1]})",1)
-            new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
+            if text_splitted[0] != "":
+                new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
             text_to_split = text_splitted[1]
             new_nodes.append(TextNode(value=alt_text_and_link[link_num][0], url=alt_text_and_link[link_num][1], text_type=TextType.links))
     return new_nodes
 
+
+def text_to_textnodes(text):
+    new_nodes = []
+    adding_nodes= []
+    node = TextNode(value=text, text_type=TextType.plain)
     
+text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
 
                 
 

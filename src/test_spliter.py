@@ -41,3 +41,57 @@ class TestTextNode(unittest.TestCase):
             ],
             new_nodes,
         )
+    def test_split_image_single(self):
+        node = TextNode(
+            "![sole image](https://www.example.com/image.png)",
+            TextType.plain,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("sole image", TextType.images, "https://www.example.com/image.png"),
+            ],
+            new_nodes,
+        )
+
+    def test_split_images_no_images(self):
+        node = TextNode(
+            "This is just plain text with no images.",
+            TextType.plain,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is just plain text with no images.", TextType.plain),
+            ],
+            new_nodes,
+        )
+
+    def test_split_links_at_end(self):
+        node = TextNode(
+            "Check out this [link](https://boot.dev)",
+            TextType.plain,
+        )
+        new_nodes = split_nodes_links([node])
+        self.assertListEqual(
+            [
+                TextNode("Check out this ", TextType.plain),
+                TextNode("link", TextType.links, "https://boot.dev"),
+            ],
+            new_nodes,
+        )
+
+    def test_split_links_multiple_same_type(self):
+        node = TextNode(
+            "[link1](https://url1.com) and [link2](https://url2.com)",
+            TextType.plain,
+        )
+        new_nodes = split_nodes_links([node])
+        self.assertListEqual(
+            [
+                TextNode("link1", TextType.links, "https://url1.com"),
+                TextNode(" and ", TextType.plain),
+                TextNode("link2", TextType.links, "https://url2.com"),
+            ],
+            new_nodes,
+        )
