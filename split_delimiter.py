@@ -85,10 +85,6 @@ def split_nodes_image(old_nodes):
             new_nodes.append(node)
             continue
         for image_num in range(len(extract_markdown_images(node.value))):
-            text_splitted = text_to_split.split(f"![{alt_text_and_link[image_num][0]}]({alt_text_and_link[image_num][1]})",1)
-            if text_splitted[0] != "":
-                new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
-            text_to_split = text_splitted[1]
             new_nodes.append(TextNode(value=alt_text_and_link[image_num][0], url=alt_text_and_link[image_num][1], text_type=TextType.images))
 
     return new_nodes
@@ -105,24 +101,22 @@ def split_nodes_links(old_nodes):
             new_nodes.append(node)
             continue
         for link_num in range(len(extract_markdown_links(node.value))):
-            text_splitted = text_to_split.split(f"[{alt_text_and_link[link_num][0]}]({alt_text_and_link[link_num][1]})",1)
-            if text_splitted[0] != "":
-                new_nodes.append(TextNode(value=text_splitted[0], text_type=TextType.plain))
-            text_to_split = text_splitted[1]
             new_nodes.append(TextNode(value=alt_text_and_link[link_num][0], url=alt_text_and_link[link_num][1], text_type=TextType.links))
     return new_nodes
 
 
 def text_to_textnodes(text):
     new_nodes = []
-    adding_nodes= []
+    image_links= []
     node = TextNode(value=text, text_type=TextType.plain)
     #print(split_nodes_delimiter([node]))
-    new_nodes.extend(split_nodes_image([node]))
-    new_nodes.extend(split_nodes_links([node]))
-    print(new_nodes)
+    image_links.extend(split_nodes_image([node]))
+    image_links.extend(split_nodes_links([node]))
+    plain_nodes = []
+    split_points = extract_markdown_images(text) + extract_markdown_links(text)
+    splitted_text = text.split()
     
-text_to_textnodes("This is a ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+text_to_textnodes("This is a ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev) [second link link](https://boot.dev)")
 
                 
 
